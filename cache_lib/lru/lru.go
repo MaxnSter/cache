@@ -135,6 +135,7 @@ func (c *lruCache) Get(k cache.Key) (cache.Value, bool) {
 		}
 	}
 	c.IncrHitCount()
+	c.list.MoveToFront(c.cache[k])
 	return v, true
 }
 
