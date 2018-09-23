@@ -250,7 +250,19 @@ func (c *lruCache) removeLocked(k cache.Key) bool {
 }
 
 func (c *lruCache) Purge() {
-	panic("implement me")
+	c.l.Lock()
+	defer c.l.Unlock()
+
+	if c.config.EvictedFunc != nil {
+		for k, element := range c.cache {
+			c.removeLocked(k)
+
+			c.config.EvictedFunc(k, element.Value.(*cacheItem).value)
+		}
+	}
+
+	c.init()
+	c.list = list.New()
 }
 
 func (c *lruCache) Keys() []cache.Key {
