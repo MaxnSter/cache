@@ -77,10 +77,11 @@ func (c *simpleCache) setLocked(k cache.Key, v cache.Value) error {
 			c.evictLocked(1)
 		}
 
-		c.cache[k] = &cacheItem{
+		item = &cacheItem{
 			clock: c.clock,
 			value: v,
 		}
+		c.cache[k] = item
 	}
 
 	if c.config.Expiration != nil {
@@ -130,8 +131,17 @@ func (c *simpleCache) Get(k cache.Key) (cache.Value, bool) {
 		return nil, false
 	}
 
+	var v cache.Value
+	var err error
+	if c.config.Deserializer != nil {
+		v, err = c.config.Deserializer.Deserialize(k, item.value)
+		if err != nil {
+			return nil, false
+		}
+	}
+
 	c.IncrHitCount()
-	return item.value, true
+	return v, true
 }
 
 func (c *simpleCache) lookup(k cache.Key) (*cacheItem, bool) {
