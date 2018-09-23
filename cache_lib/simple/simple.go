@@ -170,6 +170,7 @@ func (c *simpleCache) GetALL() map[cache.Key]cache.Value {
 		if !ok {
 			continue
 		}
+		// FIXME  value deserialize
 		m[k] = item.value
 	}
 	return m
